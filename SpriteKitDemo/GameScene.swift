@@ -10,6 +10,14 @@ import SpriteKit
 
 // didMove - You can use this method to implement any custom behavior for your scene when it is about to be presented by a view. For example, you might use this method to create the scene’s contents.
 
+// MARK: TODO
+/*
+ have random color ball each time they tap
+ try to force the Y value of new balls so they are near the top of the screen
+ give players limit of 5 balls, then remove obstacles when they are hit
+ give more balls if they hit the green slot 
+ */
+
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var scoreLabel: SKLabelNode!
