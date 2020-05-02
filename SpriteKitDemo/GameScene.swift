@@ -12,7 +12,6 @@ import SpriteKit
 
 // MARK: TODO
 /*
- have random color ball each time they tap
  give players limit of 5 balls, then remove obstacles when they are hit
  give more balls if they hit the green slot 
  */
@@ -96,6 +95,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 box.physicsBody = SKPhysicsBody(rectangleOf: box.size)
                 box.physicsBody?.isDynamic = false
+                box.name = "box"
                 addChild(box)
             } else {
                 
@@ -105,6 +105,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 //  addChild(box)
                 let topOfSceneAtPosition = CGPoint(x: location.x, y: frame.maxY)
                 makeBall(position: topOfSceneAtPosition)
+                
             }
         }
     }
@@ -189,6 +190,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.removeFromParent()
     }
     
+    func destroyObstacle(obstacle: SKNode) {
+        // SKEmitterNode - visual effects
+        if let fireParticles = SKEmitterNode(fileNamed: "FireParticles") {
+            fireParticles.position = obstacle.position
+            addChild(fireParticles)
+        }
+        
+        // removes from game
+        obstacle.removeFromParent()
+    }
+    
+    func hitObstacle(obstalce: SKNode, object: SKNode) {
+        // SKNode - parent class of SKSpriteNode
+        if object.name == "ball" && obstalce.name == "box" {
+            destroyObstacle(obstacle: obstalce)
+        }
+    }
+    
+    
     func didBegin(_ contact: SKPhysicsContact) {
         
         guard let nodeA = contact.bodyA.node else {return}
@@ -198,6 +218,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             collisionBetweenBall(ball: nodeA, object: nodeB)
         } else if nodeB.name == "ball" {
             collisionBetweenBall(ball: nodeB, object: nodeA)
+        }
+        
+        if nodeA.name == "box" {
+            hitObstacle(obstalce: nodeA, object: nodeB)
+        } else if nodeB.name == "box" {
+            hitObstacle(obstalce: nodeB, object: nodeA)
         }
         
     }
