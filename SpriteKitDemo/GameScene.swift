@@ -104,20 +104,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 //        box.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 64, height: 64)) // give a physic body matching the size of the box
                 //  box.position = location
                 //  addChild(box)
-                
-                let ball = SKSpriteNode(imageNamed: "ballRed")
-                ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2.0) // circle rather than box
-                ball.physicsBody?.restitution = 0.4 // bounce (0 - 1)
-                
-                // collisionBitMask = which node to bump into (everything by default)
-                // contactTestBitMask = which contact u wanna know (nothing by default)
-                ball.physicsBody?.contactTestBitMask = ball.physicsBody?.collisionBitMask ?? 0 // tell us about all contact
-                
-                ball.position = location
-                ball.name = "ball"
-                addChild(ball)
+                let topOfSceneAtPosition = CGPoint(x: location.x, y: frame.maxY)
+                makeBall(position: topOfSceneAtPosition)
             }
         }
+    }
+    
+    func makeBall(position: CGPoint) {
+        let ball = SKSpriteNode(imageNamed: "ballRed")
+        ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2.0) // circle rather than box
+        ball.physicsBody?.restitution = 0.4 // bounce (0 - 1)
+        
+        // collisionBitMask = which node to bump into (everything by default)
+        // contactTestBitMask = which contact u wanna know (nothing by default)
+        ball.physicsBody?.contactTestBitMask = ball.physicsBody?.collisionBitMask ?? 0 // tell us about all contact
+        
+        ball.position = position
+        ball.name = "ball"
+        addChild(ball)
     }
     
     func makeBouncer(position: CGPoint) {
