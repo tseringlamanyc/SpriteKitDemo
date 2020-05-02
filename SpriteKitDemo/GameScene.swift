@@ -10,7 +10,7 @@ import SpriteKit
 
 // didMove - You can use this method to implement any custom behavior for your scene when it is about to be presented by a view. For example, you might use this method to create the scene’s contents.
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func didMove(to view: SKView) {
         let background = SKSpriteNode(imageNamed: "background") // like UIImage
@@ -22,6 +22,7 @@ class GameScene: SKScene {
         addChild(background)
         
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame) // SKScene , whole scene
+        physicsWorld.contactDelegate = self
         
         makeBouncer(position: CGPoint(x: 0, y: 0))
         makeBouncer(position: CGPoint(x: 256, y: 0))
@@ -48,7 +49,13 @@ class GameScene: SKScene {
         let ball = SKSpriteNode(imageNamed: "ballRed")
         ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2.0) // circle rather than box
         ball.physicsBody?.restitution = 0.4 // bounce (0 - 1)
+        
+        // collisionBitMask = which node to bump into (everything by default)
+        // contactTestBitMask = which contact u wanna know (nothing by default)
+        ball.physicsBody?.contactTestBitMask = ball.physicsBody?.collisionBitMask ?? 0 // tell us about all contact
+        
         ball.position = location
+        ball.name = "ball"
         addChild(ball)
     }
     
@@ -67,13 +74,18 @@ class GameScene: SKScene {
         if isGood {
             slotBase = SKSpriteNode(imageNamed: "slotBaseGood")
             slotGlow = SKSpriteNode(imageNamed: "slotGlowGood")
+            slotBase.name = "good"
         } else {
             slotBase = SKSpriteNode(imageNamed: "slotBaseBad")
             slotGlow = SKSpriteNode(imageNamed: "slotGlowBad")
+            slotBase.name = "bad"
         }
         
         slotBase.position = position
         slotGlow.position = position
+        
+        slotBase.physicsBody = SKPhysicsBody(rectangleOf: slotBase.size)
+        slotBase.physicsBody?.isDynamic = false
         
         addChild(slotGlow)
         addChild(slotBase)
@@ -85,7 +97,29 @@ class GameScene: SKScene {
          */
         
         let spin = SKAction.rotate(byAngle: .pi, duration: 10) // half a circle
-        let spinForever = SKAction.repeatForever(spin) // run forever 
+        let spinForever = SKAction.repeatForever(spin) // run forever
         slotGlow.run(spinForever) // apply
+    }
+    
+    func collisionBetweenBall(ball: SKNode, object: SKNode) {
+        // SKNode - parent class of SKSpriteNode
+        if object.name == "good" {
+            destroy(ball: ball)
+        } else if object.name == "bad" {
+            destroy(ball: ball)
+        }
+    }
+    
+    func destroy(ball: SKNode) {
+        // removes from game
+        ball.removeFromParent()
+    }
+    
+    func didBegin(_ contact: SKPhysicsContact) {
+        if contact.bodyA.node?.name == "ball" {
+            collisionBetweenBall(ball: contact.bodyA.node!, object: contact.bodyB.node!)
+        } else if contact.bodyB.node?.name == "ball" {
+            collisionBetweenBall(ball: contact.bodyB.node!, object: contact.bodyA.node!)
+        }
     }
 }
