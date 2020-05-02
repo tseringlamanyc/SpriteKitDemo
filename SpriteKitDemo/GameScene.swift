@@ -13,7 +13,6 @@ import SpriteKit
 // MARK: TODO
 /*
  have random color ball each time they tap
- try to force the Y value of new balls so they are near the top of the screen
  give players limit of 5 balls, then remove obstacles when they are hit
  give more balls if they hit the green slot 
  */
@@ -111,7 +110,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func makeBall(position: CGPoint) {
-        let ball = SKSpriteNode(imageNamed: "ballRed")
+        let names = ["ballRed", "ballBlue", "ballCyan", "ballGreen", "ballPurple", "ballRed", "ballYellow"]
+        let randomName = names.randomElement()!
+        let ball = SKSpriteNode(imageNamed: randomName)
         ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2.0) // circle rather than box
         ball.physicsBody?.restitution = 0.4 // bounce (0 - 1)
         
