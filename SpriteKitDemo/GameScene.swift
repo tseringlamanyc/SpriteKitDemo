@@ -12,6 +12,14 @@ import SpriteKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
+    var scoreLabel: SKLabelNode!
+    
+    var score = 0 {
+        didSet {
+            scoreLabel.text = "Score: \(score)"
+        }
+    }
+    
     override func didMove(to view: SKView) {
         let background = SKSpriteNode(imageNamed: "background") // like UIImage
         background.position = CGPoint(x: 512, y: 384) // center of the screen of the iPad
@@ -21,8 +29,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         background.zPosition = -1 // place it behind everything else
         addChild(background)
         
+        scoreLabel = SKLabelNode(fontNamed: "Chalkduster")
+        scoreLabel.text = "Score: 0"
+        scoreLabel.horizontalAlignmentMode = .right
+        scoreLabel.position = CGPoint(x: 980, y: 700)
+        addChild(scoreLabel)
+        
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame) // SKScene , whole scene
         physicsWorld.contactDelegate = self
+        
+        makeSlot(position: CGPoint(x: 128, y: 0), isGood: true)
+        makeSlot(position: CGPoint(x: 384, y: 0), isGood: false)
+        makeSlot(position: CGPoint(x: 640, y: 0), isGood: true)
+        makeSlot(position: CGPoint(x: 896, y: 0), isGood: false)
         
         makeBouncer(position: CGPoint(x: 0, y: 0))
         makeBouncer(position: CGPoint(x: 256, y: 0))
@@ -30,10 +49,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         makeBouncer(position: CGPoint(x: 768, y: 0))
         makeBouncer(position: CGPoint(x: 1024, y: 0))
         
-        makeSlot(position: CGPoint(x: 128, y: 0), isGood: true)
-        makeSlot(position: CGPoint(x: 384, y: 0), isGood: false)
-        makeSlot(position: CGPoint(x: 640, y: 0), isGood: true)
-        makeSlot(position: CGPoint(x: 896, y: 0), isGood: false)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -105,8 +120,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // SKNode - parent class of SKSpriteNode
         if object.name == "good" {
             destroy(ball: ball)
+            score += 1
         } else if object.name == "bad" {
             destroy(ball: ball)
+            score -= 1
         }
     }
     
@@ -116,10 +133,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
-        if contact.bodyA.node?.name == "ball" {
-            collisionBetweenBall(ball: contact.bodyA.node!, object: contact.bodyB.node!)
-        } else if contact.bodyB.node?.name == "ball" {
-            collisionBetweenBall(ball: contact.bodyB.node!, object: contact.bodyA.node!)
+        
+        guard let nodeA = contact.bodyA.node else {return}
+        guard let nodeB = contact.bodyB.node else {return}
+        
+        if nodeA.name == "ball" {
+            collisionBetweenBall(ball: nodeA, object: nodeB)
+        } else if nodeB.name == "ball" {
+            collisionBetweenBall(ball: nodeB, object: nodeA)
         }
+        
     }
 }
